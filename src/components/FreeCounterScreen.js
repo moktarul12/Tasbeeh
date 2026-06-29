@@ -12,12 +12,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { useKeepAwake } from 'expo-keep-awake';
 import { theme } from '../theme';
+import { useI18n } from '../i18n';
 
 const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = Math.min(width * 0.72, 300);
 
 export default function FreeCounterScreen() {
   useKeepAwake();
+  const { t } = useI18n();
 
   const [count, setCount] = useState(0);
   const [sessions, setSessions] = useState(0);
@@ -76,10 +78,10 @@ export default function FreeCounterScreen() {
   };
 
   const handleResetAll = () => {
-    Alert.alert('Reset Everything?', 'This will reset your count and sessions to zero.', [
-      { text: 'Cancel', style: 'cancel' },
+    Alert.alert(t('resetEverything'), t('resetConfirm'), [
+      { text: t('cancel'), style: 'cancel' },
       {
-        text: 'Reset',
+        text: t('reset'),
         style: 'destructive',
         onPress: () => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -94,10 +96,10 @@ export default function FreeCounterScreen() {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Free Counter</Text>
-        <Text style={styles.headerSubtitle}>Count anything, no limits</Text>
+        <Text style={styles.headerTitle}>{t('freeCounter')}</Text>
+        <Text style={styles.headerSubtitle}>{t('countAnything')}</Text>
         <TouchableOpacity onPress={handleResetAll} style={styles.resetAllBtn}>
-          <Text style={styles.resetAllText}>↺ Reset All</Text>
+          <Text style={styles.resetAllText}>{t('resetAll')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -114,39 +116,39 @@ export default function FreeCounterScreen() {
               style={styles.tapArea}
             >
               <Text style={styles.countNumber}>{count}</Text>
-              <Text style={styles.countLabel}>taps</Text>
+              <Text style={styles.countLabel}>{t('taps')}</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
 
-        <Text style={styles.tapInstruction}>Tap the circle to count</Text>
+        <Text style={styles.tapInstruction}>{t('tapToCount')}</Text>
       </View>
 
       {/* Bottom Stats */}
       <View style={styles.bottomBar}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{count}</Text>
-          <Text style={styles.statLabel}>Current</Text>
+          <Text style={styles.statLabel}>{t('current')}</Text>
         </View>
 
         <View style={styles.statDivider} />
 
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{sessions}</Text>
-          <Text style={styles.statLabel}>Sessions</Text>
+          <Text style={styles.statLabel}>{t('sessions')}</Text>
         </View>
 
         <View style={styles.statDivider} />
 
         <TouchableOpacity style={styles.statItem} onPress={handleReset}>
           <Text style={styles.statValue}>↺</Text>
-          <Text style={styles.statLabel}>Reset</Text>
+          <Text style={styles.statLabel}>{t('resetCount')}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Footer */}
       <View style={styles.footer}>
-        <Text style={styles.footerText}>✦ Count with intention ✦</Text>
+        <Text style={styles.footerText}>{t('countWithIntention')}</Text>
       </View>
     </View>
   );

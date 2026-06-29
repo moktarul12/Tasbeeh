@@ -15,12 +15,14 @@ import { useKeepAwake } from 'expo-keep-awake';
 import ProgressRing from './ProgressRing';
 import { categoryColors, theme } from '../theme';
 import { saveCount, loadCount, clearCount } from '../utils/storage';
+import { useI18n } from '../i18n';
 
 const { width } = Dimensions.get('window');
 const CIRCLE_SIZE = Math.min(width * 0.72, 300);
 
 export default function CounterScreen({ item, categoryId, onBack }) {
   useKeepAwake();
+  const { t } = useI18n();
 
   const colors = categoryColors[categoryId];
   const [count, setCount] = useState(0);
@@ -125,12 +127,12 @@ export default function CounterScreen({ item, categoryId, onBack }) {
 
   const handleResetAll = () => {
     Alert.alert(
-      'Reset Everything?',
-      'This will reset your count and cycles to zero.',
+      t('resetEverything'),
+      t('resetConfirm'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'Reset',
+          text: t('reset'),
           style: 'destructive',
           onPress: () => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -185,13 +187,13 @@ export default function CounterScreen({ item, categoryId, onBack }) {
               <Text style={styles.translation}>{item.translation}</Text>
             )}
             <Text style={styles.tapHint}>
-              {showTranslation ? 'Tap to hide translation' : 'Tap to see translation'}
+              {showTranslation ? t('tapToHideTrans') : t('tapToShowTrans')}
             </Text>
           </TouchableOpacity>
         )}
 
         {!showText && (
-          <Text style={styles.tapHint}>Tap text to show what you're reading</Text>
+          <Text style={styles.tapHint}>{t('tapToShowText')}</Text>
         )}
       </View>
 
@@ -223,7 +225,7 @@ export default function CounterScreen({ item, categoryId, onBack }) {
               >
                 <Text style={styles.countNumber}>{count}</Text>
                 <Text style={styles.countTarget}>
-                  {targetReached ? '✓ Target reached!' : `of ${item.target}`}
+                  {targetReached ? t('targetReached') : `${t('of')} ${item.target}`}
                 </Text>
               </Animated.View>
             </TouchableOpacity>
@@ -232,7 +234,7 @@ export default function CounterScreen({ item, categoryId, onBack }) {
 
         {/* Tap instruction */}
         <Text style={styles.tapInstruction}>
-          {targetReached ? 'MashaAllah! Keep going or reset ↺' : 'Tap the circle to count'}
+          {targetReached ? t('keepGoing') : t('tapToCount')}
         </Text>
       </View>
 
@@ -240,21 +242,21 @@ export default function CounterScreen({ item, categoryId, onBack }) {
       <View style={styles.bottomBar}>
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{cycles}</Text>
-          <Text style={styles.statLabel}>Cycles</Text>
+          <Text style={styles.statLabel}>{t('cycles')}</Text>
         </View>
 
         <View style={styles.statDivider} />
 
         <View style={styles.statItem}>
           <Text style={styles.statValue}>{count + cycles * item.target}</Text>
-          <Text style={styles.statLabel}>Total</Text>
+          <Text style={styles.statLabel}>{t('total')}</Text>
         </View>
 
         <View style={styles.statDivider} />
 
         <TouchableOpacity style={styles.statItem} onPress={handleReset}>
           <Text style={styles.statValue}>↺</Text>
-          <Text style={styles.statLabel}>Reset Count</Text>
+          <Text style={styles.statLabel}>{t('resetCount')}</Text>
         </TouchableOpacity>
       </View>
 

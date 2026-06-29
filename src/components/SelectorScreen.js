@@ -13,10 +13,12 @@ import * as Haptics from 'expo-haptics';
 import { DHIKR_DATA, CATEGORIES } from '../data/dhikr';
 import { categoryColors, theme } from '../theme';
 import { getCustomDhikr, removeCustomDhikr } from '../utils/storage';
+import { useI18n } from '../i18n';
 
 const { width } = Dimensions.get('window');
 
 export default function SelectorScreen({ categoryId, onSelectItem, onBack, onAddCustom }) {
+  const { t } = useI18n();
   const category = CATEGORIES.find((c) => c.id === categoryId);
   const builtInItems = DHIKR_DATA[categoryId] || [];
   const colors = categoryColors[categoryId];
@@ -33,7 +35,7 @@ export default function SelectorScreen({ categoryId, onSelectItem, onBack, onAdd
 
   const handleDeleteCustom = (id, name) => {
     Alert.alert('Remove Custom Dhikr', `Delete "${name}" from your list?`, [
-      { text: 'Cancel', style: 'cancel' },
+      { text: t('cancel'), style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
@@ -53,7 +55,7 @@ export default function SelectorScreen({ categoryId, onSelectItem, onBack, onAdd
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={onBack} style={styles.backBtn}>
-          <Text style={styles.backText}>‹ Back</Text>
+          <Text style={styles.backText}>‹ {t('back')}</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>{category.title}</Text>
         <View style={styles.backBtnPlaceholder} />
@@ -63,7 +65,7 @@ export default function SelectorScreen({ categoryId, onSelectItem, onBack, onAdd
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionLabel}>Select what to recite</Text>
+        <Text style={styles.sectionLabel}>{t('selectToRecite')}</Text>
 
         {items.map((item) => (
           <TouchableOpacity
@@ -91,11 +93,11 @@ export default function SelectorScreen({ categoryId, onSelectItem, onBack, onAdd
               <View style={styles.itemFooter}>
                 <View style={[styles.targetBadge, { borderColor: colors.accent }]}>
                   <Text style={[styles.targetText, { color: colors.accent }]}>
-                    {item.isCustom ? 'Custom' : 'Target'}: {item.target}
+                    {item.isCustom ? t('custom') : t('target')}: {item.target}
                   </Text>
                 </View>
                 <Text style={styles.startText}>
-                  {item.isCustom ? 'Long-press to delete' : 'Tap to begin ›'}
+                  {item.isCustom ? t('longPressDelete') : t('tapToBegin')}
                 </Text>
               </View>
 
@@ -112,8 +114,8 @@ export default function SelectorScreen({ categoryId, onSelectItem, onBack, onAdd
         >
           <View style={[styles.addCustomCard, { borderColor: colors.accent }]}>
             <Text style={[styles.addCustomPlus, { color: colors.accent }]}>+</Text>
-            <Text style={[styles.addCustomText, { color: colors.accent }]}>Add Custom Dhikr</Text>
-            <Text style={styles.addCustomHint}>Can't find it? Add your own with auto-suggestions</Text>
+            <Text style={[styles.addCustomText, { color: colors.accent }]}>{t('addCustomDhikr')}</Text>
+            <Text style={styles.addCustomHint}>{t('addCustomHint')}</Text>
           </View>
         </TouchableOpacity>
       </ScrollView>

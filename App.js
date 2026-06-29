@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import HomeScreen from './src/components/HomeScreen';
@@ -8,9 +8,22 @@ import SelectorScreen from './src/components/SelectorScreen';
 import CounterScreen from './src/components/CounterScreen';
 import AddCustomScreen from './src/components/AddCustomScreen';
 import FreeCounterScreen from './src/components/FreeCounterScreen';
+import QiblaScreen from './src/components/QiblaScreen';
+import PrayerTimesScreen from './src/components/PrayerTimesScreen';
+import SettingsScreen from './src/components/SettingsScreen';
+import { I18nProvider, useI18n } from './src/i18n';
 import { theme } from './src/theme';
 
-export default function App() {
+const TAB_CONFIG = [
+  { key: 'home', icon: '☾', labelKey: 'navDhikr' },
+  { key: 'free', icon: '⊙', labelKey: 'navCounter' },
+  { key: 'qibla', icon: '🧭', labelKey: 'navQibla' },
+  { key: 'prayer', icon: '🕌', labelKey: 'navPrayer' },
+  { key: 'settings', icon: '⚙', labelKey: 'navSettings' },
+];
+
+function AppContent() {
+  const { t } = useI18n();
   const [tab, setTab] = useState('home');
   const [screen, setScreen] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState(null);
@@ -69,7 +82,7 @@ export default function App() {
     }
   };
 
-  const showBottomNav = screen === 'home' || screen === 'free';
+  const showBottomNav = ['home', 'free', 'qibla', 'prayer', 'settings'].includes(screen);
 
   if (!fontsLoaded) {
     return (
@@ -87,6 +100,9 @@ export default function App() {
           <HomeScreen onSelectCategory={handleSelectCategory} />
         )}
         {screen === 'free' && <FreeCounterScreen />}
+        {screen === 'qibla' && <QiblaScreen />}
+        {screen === 'prayer' && <PrayerTimesScreen />}
+        {screen === 'settings' && <SettingsScreen />}
         {screen === 'selector' && selectedCategory && (
           <SelectorScreen
             categoryId={selectedCategory}
@@ -112,33 +128,32 @@ export default function App() {
 
         {showBottomNav && (
           <View style={styles.bottomNav}>
-            <TouchableOpacity
-              style={[styles.navItem, tab === 'home' && styles.navItemActive]}
-              onPress={() => handleTabChange('home')}
-            >
-              <Text style={[styles.navIcon, tab === 'home' && styles.navIconActive]}>
-                ☾
-              </Text>
-              <Text style={[styles.navLabel, tab === 'home' && styles.navLabelActive]}>
-                Dhikr
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.navItem, tab === 'free' && styles.navItemActive]}
-              onPress={() => handleTabChange('free')}
-            >
-              <Text style={[styles.navIcon, tab === 'free' && styles.navIconActive]}>
-                ⊙
-              </Text>
-              <Text style={[styles.navLabel, tab === 'free' && styles.navLabelActive]}>
-                Counter
-              </Text>
-            </TouchableOpacity>
+            {TAB_CONFIG.map((cfg) => (
+              <TouchableOpacity
+                key={cfg.key}
+                style={[styles.navItem, tab === cfg.key && styles.navItemActive]}
+                onPress={() => handleTabChange(cfg.key)}
+              >
+                <Text style={[styles.navIcon, tab === cfg.key && styles.navIconActive]}>
+                  {cfg.icon}
+                </Text>
+                <Text style={[styles.navLabel, tab === cfg.key && styles.navLabelActive]}>
+                  {t(cfg.labelKey)}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
         )}
       </View>
     </LinearGradient>
+  );
+}
+
+export default function App() {
+  return (
+    <I18nProvider>
+      <AppContent />
+    </I18nProvider>
   );
 }
 
@@ -151,9 +166,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.35)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.08)',
-    paddingBottom: 24,
-    paddingTop: 10,
-    paddingHorizontal: 20,
+    paddingBottom: 20,
+    paddingTop: 8,
+    paddingHorizontal: 8,
   },
   navItem: {
     flex: 1,
@@ -165,14 +180,14 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.06)',
   },
   navIcon: {
-    fontSize: 24,
+    fontSize: 20,
     color: theme.dark.textMuted,
   },
   navIconActive: {
     color: theme.dark.gold,
   },
   navLabel: {
-    fontSize: 11,
+    fontSize: 10,
     color: theme.dark.textMuted,
     marginTop: 2,
   },

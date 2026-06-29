@@ -10,6 +10,7 @@ import {
 import { LinearGradient } from 'expo-linear-gradient';
 import { CATEGORIES, DHIKR_DATA } from '../data/dhikr';
 import { categoryColors, theme } from '../theme';
+import { useI18n } from '../i18n';
 
 const { width } = Dimensions.get('window');
 const CARD_W = width - 48;
@@ -25,14 +26,21 @@ function getItemCount(catId) {
   return items.length;
 }
 
+const CATEGORY_LABELS = {
+  tasbeeh: { titleKey: 'catTasbeeh', subKey: 'catTasbeehSub' },
+  darood: { titleKey: 'catDarood', subKey: 'catDaroodSub' },
+  ayat: { titleKey: 'catAyat', subKey: 'catAyatSub' },
+};
+
 export default function HomeScreen({ onSelectCategory }) {
+  const { t } = useI18n();
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.bismillah}>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</Text>
-        <Text style={styles.appTitle}>Tashbeeh</Text>
-        <Text style={styles.appSubtitle}>Digital Dhikr Counter</Text>
+        <Text style={styles.bismillah}>{t('bismillah')}</Text>
+        <Text style={styles.appTitle}>{t('appName')}</Text>
+        <Text style={styles.appSubtitle}>{t('appSubtitle')}</Text>
       </View>
 
       {/* Category Cards */}
@@ -40,10 +48,11 @@ export default function HomeScreen({ onSelectCategory }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.sectionLabel}>Choose Your Dhikr</Text>
+        <Text style={styles.sectionLabel}>{t('chooseDhikr')}</Text>
         {CATEGORIES.map((cat) => {
           const colors = categoryColors[cat.id];
           const count = getItemCount(cat.id);
+          const labels = CATEGORY_LABELS[cat.id];
           return (
             <TouchableOpacity
               key={cat.id}
@@ -62,12 +71,12 @@ export default function HomeScreen({ onSelectCategory }) {
 
                 <View style={styles.cardContent}>
                   <View style={styles.cardTextContainer}>
-                    <Text style={styles.cardTitle}>{cat.title}</Text>
-                    <Text style={styles.cardSubtitle}>{cat.subtitle}</Text>
+                    <Text style={styles.cardTitle}>{t(labels.titleKey)}</Text>
+                    <Text style={styles.cardSubtitle}>{t(labels.subKey)}</Text>
                     <View style={styles.cardMeta}>
                       <View style={[styles.countPill, { borderColor: colors.accent }]}>
                         <Text style={[styles.countPillText, { color: colors.accent }]}>
-                          {count} dhikrs
+                          {count} {t('dhikrs')}
                         </Text>
                       </View>
                     </View>
@@ -85,7 +94,7 @@ export default function HomeScreen({ onSelectCategory }) {
         })}
 
         <Text style={styles.footerNote}>
-          ✦ Count your dhikr with focus and devotion ✦
+          {t('footerNote')}
         </Text>
       </ScrollView>
     </View>
