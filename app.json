@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "tashbee-app",
+    "name": "Tashbeeh",
     "slug": "tashbee-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -15,10 +15,14 @@
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
-      }
+      },
+      "package": "com.moktarul.tashbeeapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "plugins": [
+      "expo-font"
+    ]
   }
 }
