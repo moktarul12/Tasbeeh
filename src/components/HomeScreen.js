@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { CATEGORIES } from '../data/dhikr';
+import { CATEGORIES, DHIKR_DATA } from '../data/dhikr';
 import { categoryColors, theme } from '../theme';
 
 const { width } = Dimensions.get('window');
@@ -19,6 +19,11 @@ const CATEGORY_PATTERNS = {
   darood: 'ﷺ',
   ayat: '۞',
 };
+
+function getItemCount(catId) {
+  const items = DHIKR_DATA[catId] || [];
+  return items.length;
+}
 
 export default function HomeScreen({ onSelectCategory }) {
   return (
@@ -36,8 +41,9 @@ export default function HomeScreen({ onSelectCategory }) {
         showsVerticalScrollIndicator={false}
       >
         <Text style={styles.sectionLabel}>Choose Your Dhikr</Text>
-        {CATEGORIES.map((cat, index) => {
+        {CATEGORIES.map((cat) => {
           const colors = categoryColors[cat.id];
+          const count = getItemCount(cat.id);
           return (
             <TouchableOpacity
               key={cat.id}
@@ -55,12 +61,19 @@ export default function HomeScreen({ onSelectCategory }) {
                 <Text style={styles.pattern}>{CATEGORY_PATTERNS[cat.id]}</Text>
 
                 <View style={styles.cardContent}>
-                  <View>
+                  <View style={styles.cardTextContainer}>
                     <Text style={styles.cardTitle}>{cat.title}</Text>
                     <Text style={styles.cardSubtitle}>{cat.subtitle}</Text>
+                    <View style={styles.cardMeta}>
+                      <View style={[styles.countPill, { borderColor: colors.accent }]}>
+                        <Text style={[styles.countPillText, { color: colors.accent }]}>
+                          {count} dhikrs
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                  <View style={styles.cardBadge}>
-                    <Text style={styles.cardBadgeText}>›</Text>
+                  <View style={[styles.cardBadge, { backgroundColor: colors.accent + '22' }]}>
+                    <Text style={[styles.cardBadgeText, { color: colors.accent }]}>›</Text>
                   </View>
                 </View>
 
@@ -90,10 +103,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   bismillah: {
-    fontSize: 18,
-    color: theme.dark.gold,
+    fontSize: 20,
+    color: theme.dark.goldLight,
     marginBottom: 12,
-    fontFamily: undefined,
   },
   appTitle: {
     fontSize: 36,
@@ -145,6 +157,23 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  cardTextContainer: {
+    flex: 1,
+  },
+  cardMeta: {
+    flexDirection: 'row',
+    marginTop: 10,
+  },
+  countPill: {
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+  },
+  countPillText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
   cardTitle: {
     fontSize: 28,
     fontWeight: 'bold',
@@ -160,13 +189,11 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255,255,255,0.12)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   cardBadgeText: {
     fontSize: 24,
-    color: '#FFFFFF',
     fontWeight: '300',
   },
   accentLine: {

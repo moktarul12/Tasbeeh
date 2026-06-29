@@ -27,7 +27,7 @@ export default function CounterScreen({ item, categoryId, onBack }) {
   const [cycles, setCycles] = useState(0);
   const [showText, setShowText] = useState(true);
   const [showTranslation, setShowTranslation] = useState(false);
-  const [completed, setCompleted] = useState(false);
+  const [targetReached, setTargetReached] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -64,8 +64,6 @@ export default function CounterScreen({ item, categoryId, onBack }) {
   }, [progress]);
 
   const handleTap = useCallback(() => {
-    if (completed) return;
-
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     // Pulse animation
@@ -85,9 +83,9 @@ export default function CounterScreen({ item, categoryId, onBack }) {
 
     setCount((prev) => {
       const next = prev + 1;
-      if (next >= item.target) {
-        // Cycle complete!
-        setCompleted(true);
+      if (next === item.target) {
+        // Target reached - celebrate but keep counting
+        setTargetReached(true);
         setCycles((c) => c + 1);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
@@ -98,30 +96,22 @@ export default function CounterScreen({ item, categoryId, onBack }) {
             duration: 300,
             useNativeDriver: true,
           }),
-          Animated.delay(800),
+          Animated.delay(600),
           Animated.timing(celebrateAnim, {
             toValue: 0,
             duration: 400,
             useNativeDriver: true,
           }),
         ]).start();
-
-        // Auto reset after celebration
-        setTimeout(() => {
-          setCompleted(false);
-          setCount(0);
-        }, 1500);
-
-        return next;
       }
       return next;
     });
-  }, [completed, item.target]);
+  }, [item.target]);
 
   const handleReset = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setCount(0);
-    setCompleted(false);
+    setTargetReached(false);
   };
 
   // Save count on unmount
@@ -146,7 +136,7 @@ export default function CounterScreen({ item, categoryId, onBack }) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
             setCount(0);
             setCycles(0);
-            setCompleted(false);
+            setTargetReached(false);
             clearCount(item.id);
           },
         },
@@ -217,7 +207,6 @@ export default function CounterScreen({ item, categoryId, onBack }) {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={handleTap}
-              disabled={completed}
               style={styles.tapArea}
             >
               <Animated.View
@@ -225,24 +214,17 @@ export default function CounterScreen({ item, categoryId, onBack }) {
                   styles.tapInner,
                   {
                     transform: [{ scale: scaleAnim }],
-                    borderColor: completed ? theme.dark.success : colors.accent,
-                    backgroundColor: completed
+                    borderColor: targetReached ? theme.dark.success : colors.accent,
+                    backgroundColor: targetReached
                       ? 'rgba(34, 197, 94, 0.08)'
                       : `${colors.glow}`,
                   },
                 ]}
               >
-                {completed ? (
-                  <>
-                    <Text style={styles.completedEmoji}>✓</Text>
-                    <Text style={styles.completedText}>Complete!</Text>
-                  </>
-                ) : (
-                  <>
-                    <Text style={styles.countNumber}>{count}</Text>
-                    <Text style={styles.countTarget}>of {item.target}</Text>
-                  </>
-                )}
+                <Text style={styles.countNumber}>{count}</Text>
+                <Text style={styles.countTarget}>
+                  {targetReached ? '✓ Target reached!' : `of ${item.target}`}
+                </Text>
               </Animated.View>
             </TouchableOpacity>
           </ProgressRing>
@@ -250,7 +232,7 @@ export default function CounterScreen({ item, categoryId, onBack }) {
 
         {/* Tap instruction */}
         <Text style={styles.tapInstruction}>
-          {completed ? 'MashaAllah! Starting next cycle...' : 'Tap the circle to count'}
+          {targetReached ? 'MashaAllah! Keep going or reset ↺' : 'Tap the circle to count'}
         </Text>
       </View>
 
@@ -327,11 +309,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   arabicText: {
-    fontSize: 24,
-    color: theme.dark.gold,
+    fontSize: 30,
+    color: theme.dark.goldLight,
     textAlign: 'center',
-    lineHeight: 42,
+    lineHeight: 54,
     marginBottom: 12,
+    fontWeight: '600',
   },
   transliteration: {
     fontSize: 14,
@@ -381,17 +364,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: theme.dark.textSecondary,
     marginTop: 4,
-  },
-  completedEmoji: {
-    fontSize: 56,
-    color: theme.dark.success,
-    fontWeight: 'bold',
-  },
-  completedText: {
-    fontSize: 18,
-    color: theme.dark.success,
-    marginTop: 4,
-    fontWeight: '600',
   },
   tapInstruction: {
     fontSize: 13,

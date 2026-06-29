@@ -175,11 +175,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   arabicText: {
-    fontSize: 22,
-    color: theme.dark.gold,
+    fontSize: 26,
+    color: theme.dark.goldLight,
     textAlign: 'center',
-    lineHeight: 36,
+    lineHeight: 46,
     marginBottom: 10,
+    fontWeight: '600',
   },
   transliteration: {
     fontSize: 15,

@@ -7,9 +7,11 @@ import HomeScreen from './src/components/HomeScreen';
 import SelectorScreen from './src/components/SelectorScreen';
 import CounterScreen from './src/components/CounterScreen';
 import AddCustomScreen from './src/components/AddCustomScreen';
+import FreeCounterScreen from './src/components/FreeCounterScreen';
 import { theme } from './src/theme';
 
 export default function App() {
+  const [tab, setTab] = useState('home');
   const [screen, setScreen] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
@@ -23,6 +25,14 @@ export default function App() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSelectedCategory(catId);
     setScreen('selector');
+  };
+
+  const handleTabChange = (newTab) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setTab(newTab);
+    setScreen(newTab);
+    setSelectedCategory(null);
+    setSelectedItem(null);
   };
 
   const handleSelectItem = (item) => {
@@ -59,6 +69,8 @@ export default function App() {
     }
   };
 
+  const showBottomNav = screen === 'home' || screen === 'free';
+
   if (!fontsLoaded) {
     return (
       <LinearGradient colors={theme.dark.bgGradient} style={styles.flex}>
@@ -74,6 +86,7 @@ export default function App() {
         {screen === 'home' && (
           <HomeScreen onSelectCategory={handleSelectCategory} />
         )}
+        {screen === 'free' && <FreeCounterScreen />}
         {screen === 'selector' && selectedCategory && (
           <SelectorScreen
             categoryId={selectedCategory}
@@ -96,6 +109,34 @@ export default function App() {
             onBack={handleBack}
           />
         )}
+
+        {showBottomNav && (
+          <View style={styles.bottomNav}>
+            <TouchableOpacity
+              style={[styles.navItem, tab === 'home' && styles.navItemActive]}
+              onPress={() => handleTabChange('home')}
+            >
+              <Text style={[styles.navIcon, tab === 'home' && styles.navIconActive]}>
+                ☾
+              </Text>
+              <Text style={[styles.navLabel, tab === 'home' && styles.navLabelActive]}>
+                Dhikr
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.navItem, tab === 'free' && styles.navItemActive]}
+              onPress={() => handleTabChange('free')}
+            >
+              <Text style={[styles.navIcon, tab === 'free' && styles.navIconActive]}>
+                ⊙
+              </Text>
+              <Text style={[styles.navLabel, tab === 'free' && styles.navLabelActive]}>
+                Counter
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </LinearGradient>
   );
@@ -104,5 +145,39 @@ export default function App() {
 const styles = StyleSheet.create({
   flex: {
     flex: 1,
+  },
+  bottomNav: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.08)',
+    paddingBottom: 24,
+    paddingTop: 10,
+    paddingHorizontal: 20,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 6,
+    borderRadius: 12,
+  },
+  navItemActive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.06)',
+  },
+  navIcon: {
+    fontSize: 24,
+    color: theme.dark.textMuted,
+  },
+  navIconActive: {
+    color: theme.dark.gold,
+  },
+  navLabel: {
+    fontSize: 11,
+    color: theme.dark.textMuted,
+    marginTop: 2,
+  },
+  navLabelActive: {
+    color: theme.dark.gold,
+    fontWeight: '600',
   },
 });
