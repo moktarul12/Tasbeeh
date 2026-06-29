@@ -18,9 +18,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: 'npm'
-          cache-dependency-path: tashbee-app/package-lock.json
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -34,24 +33,22 @@ jobs:
           packages: 'platform-tools build-tools-34 platform;android-34'
 
       - name: Install dependencies
-        working-directory: tashbee-app
         run: npm ci
 
       - name: Prebuild native project
-        working-directory: tashbee-app
         run: npx expo prebuild --platform android --clean
 
       - name: Grant gradlew permission
-        working-directory: tashbee-app/android
+        working-directory: android
         run: chmod +x ./gradlew
 
       - name: Build Debug APK
-        working-directory: tashbee-app/android
+        working-directory: android
         run: ./gradlew assembleDebug --no-daemon -x lint
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: tashbeeh-debug-apk
-          path: tashbee-app/android/app/build/outputs/apk/debug/*.apk
+          path: android/app/build/outputs/apk/debug/*.apk
           retention-days: 30
