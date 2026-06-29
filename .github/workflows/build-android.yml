@@ -8,18 +8,12 @@ on:
 
 jobs:
   build-android:
-    name: Build Debug APK
+    name: Build Unsigned Release APK
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: 'npm'
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -32,26 +26,17 @@ jobs:
         with:
           packages: 'platform-tools build-tools;34.0.0 platforms;android-34 cmdline-tools;latest'
 
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Prebuild native project
-        run: npx expo prebuild --platform android --clean
-
-      - name: Embed JS bundle
-        run: npx expo export:embed --platform android
-
       - name: Grant gradlew permission
         working-directory: android
         run: chmod +x ./gradlew
 
-      - name: Build Debug APK
+      - name: Build Unsigned Release APK
         working-directory: android
-        run: ./gradlew assembleDebug --no-daemon -x lint
+        run: ./gradlew assembleRelease --no-daemon -x lint
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: tashbeeh-debug-apk
-          path: android/app/build/outputs/apk/debug/*.apk
+          name: tashbeeh-unsigned-apk
+          path: android/app/build/outputs/apk/release/*.apk
           retention-days: 30
