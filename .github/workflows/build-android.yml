@@ -38,6 +38,9 @@ jobs:
       - name: Prebuild native project
         run: npx expo prebuild --platform android --clean
 
+      - name: Embed JS bundle
+        run: npx expo export:embed --platform android
+
       - name: Grant gradlew permission
         working-directory: android
         run: chmod +x ./gradlew
