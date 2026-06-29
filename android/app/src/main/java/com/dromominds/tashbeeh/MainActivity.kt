@@ -1,4 +1,4 @@
-package com.moktarul.tashbeeapp
+package com.dromominds.tashbeeh
 
 import android.os.Build
 import android.os.Bundle

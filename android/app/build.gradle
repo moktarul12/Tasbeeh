@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.moktarul.tashbeeapp'
+    namespace 'com.dromominds.tashbeeh'
     defaultConfig {
-        applicationId 'com.moktarul.tashbeeapp'
+        applicationId 'com.dromominds.tashbeeh'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
