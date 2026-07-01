@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import HomeScreen from './src/components/HomeScreen';
@@ -127,22 +127,24 @@ function AppContent() {
         )}
 
         {showBottomNav && (
-          <View style={styles.bottomNav}>
-            {TAB_CONFIG.map((cfg) => (
-              <TouchableOpacity
-                key={cfg.key}
-                style={[styles.navItem, tab === cfg.key && styles.navItemActive]}
-                onPress={() => handleTabChange(cfg.key)}
-              >
-                <Text style={[styles.navIcon, tab === cfg.key && styles.navIconActive]}>
-                  {cfg.icon}
-                </Text>
-                <Text style={[styles.navLabel, tab === cfg.key && styles.navLabelActive]}>
-                  {t(cfg.labelKey)}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <SafeAreaView style={styles.bottomNavSafe}>
+            <View style={styles.bottomNav}>
+              {TAB_CONFIG.map((cfg) => (
+                <TouchableOpacity
+                  key={cfg.key}
+                  style={[styles.navItem, tab === cfg.key && styles.navItemActive]}
+                  onPress={() => handleTabChange(cfg.key)}
+                >
+                  <Text style={[styles.navIcon, tab === cfg.key && styles.navIconActive]}>
+                    {cfg.icon}
+                  </Text>
+                  <Text style={[styles.navLabel, tab === cfg.key && styles.navLabelActive]}>
+                    {t(cfg.labelKey)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </SafeAreaView>
         )}
       </View>
     </LinearGradient>
@@ -161,12 +163,15 @@ const styles = StyleSheet.create({
   flex: {
     flex: 1,
   },
+  bottomNavSafe: {
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+  },
   bottomNav: {
     flexDirection: 'row',
     backgroundColor: 'rgba(0, 0, 0, 0.35)',
     borderTopWidth: 1,
     borderTopColor: 'rgba(255, 255, 255, 0.08)',
-    paddingBottom: 20,
+    paddingBottom: Platform.OS === 'ios' ? 0 : 8,
     paddingTop: 8,
     paddingHorizontal: 8,
   },
