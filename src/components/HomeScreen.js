@@ -1,222 +1,87 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  Dimensions,
-} from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { CATEGORIES, DHIKR_DATA } from '../data/dhikr';
-import { categoryColors, theme } from '../theme';
+import { theme } from '../theme';
 import { useI18n } from '../i18n';
 
-const { width } = Dimensions.get('window');
-const CARD_W = width - 48;
-
-const CATEGORY_PATTERNS = {
-  tasbeeh: '۞',
-  darood: 'ﷺ',
-  ayat: '۞',
-};
-
-function getItemCount(catId) {
-  const items = DHIKR_DATA[catId] || [];
-  return items.length;
-}
-
-const CATEGORY_LABELS = {
-  tasbeeh: { titleKey: 'catTasbeeh', subKey: 'catTasbeehSub' },
-  darood: { titleKey: 'catDarood', subKey: 'catDaroodSub' },
-  ayat: { titleKey: 'catAyat', subKey: 'catAyatSub' },
+const CAT_LABELS = {
+  tasbeeh: { titleKey: 'catTasbeeh', subKey: 'catTasbeehSub', icon: '✦' },
+  darood: { titleKey: 'catDarood', subKey: 'catDaroodSub', icon: 'ﷺ' },
+  ayat: { titleKey: 'catAyat', subKey: 'catAyatSub', icon: '۞' },
 };
 
 export default function HomeScreen({ onSelectCategory }) {
   const { t } = useI18n();
+
   return (
-    <View style={styles.container}>
-      {/* Header */}
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
       <View style={styles.header}>
         <Text style={styles.bismillah}>{t('bismillah')}</Text>
         <Text style={styles.appTitle}>{t('appName')}</Text>
         <Text style={styles.appSubtitle}>{t('appSubtitle')}</Text>
       </View>
 
-      {/* Category Cards */}
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <Text style={styles.sectionLabel}>{t('chooseDhikr')}</Text>
-        {CATEGORIES.map((cat) => {
-          const colors = categoryColors[cat.id];
-          const count = getItemCount(cat.id);
-          const labels = CATEGORY_LABELS[cat.id];
-          return (
-            <TouchableOpacity
-              key={cat.id}
-              activeOpacity={0.85}
-              onPress={() => onSelectCategory(cat.id)}
-              style={styles.cardWrapper}
-            >
-              <LinearGradient
-                colors={colors.gradient}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.card}
-              >
-                {/* Decorative pattern */}
-                <Text style={styles.pattern}>{CATEGORY_PATTERNS[cat.id]}</Text>
+      <Text style={styles.sectionLabel}>{t('chooseCategory')}</Text>
 
-                <View style={styles.cardContent}>
-                  <View style={styles.cardTextContainer}>
-                    <Text style={styles.cardTitle}>{t(labels.titleKey)}</Text>
-                    <Text style={styles.cardSubtitle}>{t(labels.subKey)}</Text>
-                    <View style={styles.cardMeta}>
-                      <View style={[styles.countPill, { borderColor: colors.accent }]}>
-                        <Text style={[styles.countPillText, { color: colors.accent }]}>
-                          {count} {t('dhikrs')}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <View style={[styles.cardBadge, { backgroundColor: colors.accent + '22' }]}>
-                    <Text style={[styles.cardBadgeText, { color: colors.accent }]}>›</Text>
-                  </View>
-                </View>
+      {CATEGORIES.map((cat) => {
+        const labels = CAT_LABELS[cat.id];
+        const count = (DHIKR_DATA[cat.id] || []).length;
+        return (
+          <TouchableOpacity
+            key={cat.id}
+            activeOpacity={0.7}
+            onPress={() => onSelectCategory(cat.id)}
+            style={styles.card}
+          >
+            <View style={styles.cardIcon}>
+              <Text style={styles.cardIconText}>{labels.icon}</Text>
+            </View>
+            <View style={styles.cardBody}>
+              <Text style={styles.cardTitle}>{t(labels.titleKey)}</Text>
+              <Text style={styles.cardSub}>{t(labels.subKey)}</Text>
+              <Text style={styles.cardCount}>{count} {t('dhikrs')}</Text>
+            </View>
+            <Text style={styles.chevron}>›</Text>
+          </TouchableOpacity>
+        );
+      })}
 
-                {/* Accent line */}
-                <View style={[styles.accentLine, { backgroundColor: colors.accent }]} />
-              </LinearGradient>
-            </TouchableOpacity>
-          );
-        })}
-
-        <Text style={styles.footerNote}>
-          {t('footerNote')}
-        </Text>
-      </ScrollView>
-    </View>
+      <Text style={styles.footer}>{t('footerNote')}</Text>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    alignItems: 'center',
-    paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 24,
-  },
-  bismillah: {
-    fontSize: 20,
-    color: theme.dark.goldLight,
-    marginBottom: 12,
-  },
-  appTitle: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: theme.dark.text,
-    letterSpacing: 2,
-  },
-  appSubtitle: {
-    fontSize: 14,
-    color: theme.dark.textSecondary,
-    marginTop: 4,
-    letterSpacing: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingBottom: 40,
-  },
-  sectionLabel: {
-    fontSize: 13,
-    color: theme.dark.textMuted,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    marginBottom: 16,
-    marginTop: 8,
-  },
-  cardWrapper: {
-    marginBottom: 16,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
+  container: { flex: 1, backgroundColor: theme.cream },
+  content: { paddingHorizontal: 24, paddingBottom: 100 },
+  header: { alignItems: 'center', paddingTop: 56, paddingBottom: 28 },
+  bismillah: { fontSize: 18, color: theme.green, marginBottom: 10, fontWeight: '500' },
+  appTitle: { fontSize: 34, fontWeight: 'bold', color: theme.green, letterSpacing: 1 },
+  appSubtitle: { fontSize: 14, color: theme.textSecondary, marginTop: 4 },
+  sectionLabel: { fontSize: 13, color: theme.textMuted, fontWeight: '600', marginBottom: 14, letterSpacing: 0.5 },
   card: {
-    width: CARD_W,
-    minHeight: 120,
-    borderRadius: 20,
-    padding: 24,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  pattern: {
-    position: 'absolute',
-    top: 10,
-    right: 20,
-    fontSize: 80,
-    color: 'rgba(255,255,255,0.05)',
-    fontWeight: 'bold',
-  },
-  cardContent: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  cardTextContainer: {
-    flex: 1,
-  },
-  cardMeta: {
-    flexDirection: 'row',
-    marginTop: 10,
-  },
-  countPill: {
+    backgroundColor: theme.creamLight,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
     borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    borderColor: theme.borderLight,
   },
-  countPillText: {
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  cardTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    letterSpacing: 1,
-  },
-  cardSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.6)',
-    marginTop: 4,
-  },
-  cardBadge: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  cardIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: theme.green,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardBadgeText: {
-    fontSize: 24,
-    fontWeight: '300',
-  },
-  accentLine: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 3,
-  },
-  footerNote: {
-    textAlign: 'center',
-    color: theme.dark.textMuted,
-    fontSize: 13,
-    marginTop: 24,
-    marginBottom: 8,
-  },
+  cardIconText: { fontSize: 24, color: theme.goldLight },
+  cardBody: { flex: 1, marginLeft: 14 },
+  cardTitle: { fontSize: 18, fontWeight: 'bold', color: theme.green },
+  cardSub: { fontSize: 13, color: theme.textSecondary, marginTop: 2 },
+  cardCount: { fontSize: 12, color: theme.gold, marginTop: 4, fontWeight: '600' },
+  chevron: { fontSize: 24, color: theme.textMuted, marginRight: 4 },
+  footer: { textAlign: 'center', color: theme.textMuted, fontSize: 13, marginTop: 24 },
 });

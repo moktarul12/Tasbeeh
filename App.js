@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform, ScrollView } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import HomeScreen from './src/components/HomeScreen';
 import SelectorScreen from './src/components/SelectorScreen';
@@ -14,8 +13,8 @@ import SettingsScreen from './src/components/SettingsScreen';
 import { I18nProvider, useI18n } from './src/i18n';
 import { theme } from './src/theme';
 
-const TAB_CONFIG = [
-  { key: 'home', icon: '☾', labelKey: 'navDhikr' },
+const TABS = [
+  { key: 'home', icon: '✦', labelKey: 'navDhikr' },
   { key: 'free', icon: '⊙', labelKey: 'navCounter' },
   { key: 'qibla', icon: '🧭', labelKey: 'navQibla' },
   { key: 'prayer', icon: '🕌', labelKey: 'navPrayer' },
@@ -28,17 +27,6 @@ function AppContent() {
   const [screen, setScreen] = useState('home');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
-  const [fontsLoaded, setFontsLoaded] = useState(false);
-
-  useEffect(() => {
-    setFontsLoaded(true);
-  }, []);
-
-  const handleSelectCategory = (catId) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setSelectedCategory(catId);
-    setScreen('selector');
-  };
 
   const handleTabChange = (newTab) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -46,6 +34,12 @@ function AppContent() {
     setScreen(newTab);
     setSelectedCategory(null);
     setSelectedItem(null);
+  };
+
+  const handleSelectCategory = (catId) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSelectedCategory(catId);
+    setScreen('selector');
   };
 
   const handleSelectItem = (item) => {
@@ -61,93 +55,58 @@ function AppContent() {
 
   const handleCustomAdded = (item, startNow = false) => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    if (startNow) {
-      setSelectedItem(item);
-      setScreen('counter');
-    } else {
-      setScreen('selector');
-    }
+    if (startNow) { setSelectedItem(item); setScreen('counter'); }
+    else setScreen('selector');
   };
 
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (screen === 'counter') {
-      setScreen('selector');
-      setSelectedItem(null);
-    } else if (screen === 'selector') {
-      setScreen('home');
-      setSelectedCategory(null);
-    } else if (screen === 'addcustom') {
-      setScreen('selector');
-    }
+    if (screen === 'counter') { setScreen('selector'); setSelectedItem(null); }
+    else if (screen === 'selector') { setScreen('home'); setSelectedCategory(null); }
+    else if (screen === 'addcustom') setScreen('selector');
   };
 
   const showBottomNav = ['home', 'free', 'qibla', 'prayer', 'settings'].includes(screen);
 
-  if (!fontsLoaded) {
-    return (
-      <LinearGradient colors={theme.dark.bgGradient} style={styles.flex}>
-        <StatusBar style="light" />
-      </LinearGradient>
-    );
-  }
-
   return (
-    <LinearGradient colors={theme.dark.bgGradient} style={styles.flex}>
-      <StatusBar style="light" />
+    <View style={styles.container}>
+      <StatusBar style="dark" />
       <View style={styles.flex}>
-        {screen === 'home' && (
-          <HomeScreen onSelectCategory={handleSelectCategory} />
-        )}
+        {screen === 'home' && <HomeScreen onSelectCategory={handleSelectCategory} />}
         {screen === 'free' && <FreeCounterScreen />}
         {screen === 'qibla' && <QiblaScreen />}
         {screen === 'prayer' && <PrayerTimesScreen />}
         {screen === 'settings' && <SettingsScreen />}
         {screen === 'selector' && selectedCategory && (
-          <SelectorScreen
-            categoryId={selectedCategory}
-            onSelectItem={handleSelectItem}
-            onBack={handleBack}
-            onAddCustom={handleAddCustom}
-          />
+          <SelectorScreen categoryId={selectedCategory} onSelectItem={handleSelectItem} onBack={handleBack} onAddCustom={handleAddCustom} />
         )}
         {screen === 'addcustom' && selectedCategory && (
-          <AddCustomScreen
-            categoryId={selectedCategory}
-            onBack={handleBack}
-            onAdded={handleCustomAdded}
-          />
+          <AddCustomScreen categoryId={selectedCategory} onBack={handleBack} onAdded={handleCustomAdded} />
         )}
         {screen === 'counter' && selectedItem && selectedCategory && (
-          <CounterScreen
-            item={selectedItem}
-            categoryId={selectedCategory}
-            onBack={handleBack}
-          />
+          <CounterScreen item={selectedItem} categoryId={selectedCategory} onBack={handleBack} />
         )}
 
         {showBottomNav && (
-          <SafeAreaView style={styles.bottomNavSafe}>
-            <View style={styles.bottomNav}>
-              {TAB_CONFIG.map((cfg) => (
+          <SafeAreaView style={styles.navSafe}>
+            <View style={styles.navBar}>
+              {TABS.map((cfg) => (
                 <TouchableOpacity
                   key={cfg.key}
-                  style={[styles.navItem, tab === cfg.key && styles.navItemActive]}
+                  style={styles.navItem}
                   onPress={() => handleTabChange(cfg.key)}
+                  activeOpacity={0.7}
                 >
-                  <Text style={[styles.navIcon, tab === cfg.key && styles.navIconActive]}>
-                    {cfg.icon}
-                  </Text>
-                  <Text style={[styles.navLabel, tab === cfg.key && styles.navLabelActive]}>
-                    {t(cfg.labelKey)}
-                  </Text>
+                  <Text style={[styles.navIcon, tab === cfg.key && styles.navIconActive]}>{cfg.icon}</Text>
+                  <Text style={[styles.navLabel, tab === cfg.key && styles.navLabelActive]}>{t(cfg.labelKey)}</Text>
+                  {tab === cfg.key && <View style={styles.navIndicator} />}
                 </TouchableOpacity>
               ))}
             </View>
           </SafeAreaView>
         )}
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -160,44 +119,20 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  bottomNavSafe: {
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
-  },
-  bottomNav: {
+  container: { flex: 1, backgroundColor: theme.cream },
+  flex: { flex: 1 },
+  navSafe: { backgroundColor: theme.creamLight },
+  navBar: {
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.08)',
-    paddingBottom: Platform.OS === 'ios' ? 0 : 8,
-    paddingTop: 8,
+    borderTopColor: theme.borderLight,
+    paddingVertical: 8,
     paddingHorizontal: 8,
   },
-  navItem: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  navItemActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.06)',
-  },
-  navIcon: {
-    fontSize: 20,
-    color: theme.dark.textMuted,
-  },
-  navIconActive: {
-    color: theme.dark.gold,
-  },
-  navLabel: {
-    fontSize: 10,
-    color: theme.dark.textMuted,
-    marginTop: 2,
-  },
-  navLabelActive: {
-    color: theme.dark.gold,
-    fontWeight: '600',
-  },
+  navItem: { flex: 1, alignItems: 'center', paddingVertical: 4 },
+  navIcon: { fontSize: 20, color: theme.textMuted },
+  navIconActive: { color: theme.green },
+  navLabel: { fontSize: 10, color: theme.textMuted, marginTop: 3 },
+  navLabelActive: { color: theme.green, fontWeight: '600' },
+  navIndicator: { width: 4, height: 4, borderRadius: 2, backgroundColor: theme.gold, marginTop: 4 },
 });
